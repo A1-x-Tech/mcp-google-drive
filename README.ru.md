@@ -63,7 +63,9 @@
 
 <br>
 
-**В приложении:** откройте **Settings → Plugins → MCP servers**, нажмите **Add server**, затем добавьте `npx -y @a1-x-tech/mcp-google-drive@latest` с `GOOGLE_DRIVE_CLIENT_ID`, `GOOGLE_DRIVE_CLIENT_SECRET` и `GOOGLE_DRIVE_REFRESH_TOKEN`.
+**В desktop-приложении:** откройте **Settings → MCP servers**, нажмите **Add server**, выберите **STDIO** и укажите команду `npx -y @a1-x-tech/mcp-google-drive@latest` вместе с переменными `GOOGLE_DRIVE_CLIENT_ID`, `GOOGLE_DRIVE_CLIENT_SECRET` и `GOOGLE_DRIVE_REFRESH_TOKEN`. Нажмите **Save**, затем **Restart**.
+
+**В IDE-расширении:** откройте **gear menu → MCP servers**, нажмите **Add server**, выберите **STDIO** и укажите ту же команду и переменные окружения. Нажмите **Save**, затем **Restart extension**.
 
 **В командной строке:**
 
@@ -110,7 +112,9 @@ claude mcp list
 
 <br>
 
-Откройте **Settings → Developer → Edit Config** и добавьте:
+Актуальный официальный путь — **Settings → Extensions**. Для пользовательского desktop extension откройте **Advanced settings → Extension Developer → Install Extension…**, выберите файл `.mcpb` и следуйте подсказкам.
+
+Этот репозиторий сейчас публикует npm-пакет со stdio и пока не содержит `.mcpb`. Поэтому используйте приведённый ниже JSON stdio-конфиг как fallback только в сборках Claude Desktop, где ещё поддерживается локальная конфигурация:
 
 ```json
 {
@@ -128,7 +132,7 @@ claude mcp list
 }
 ```
 
-Если **Edit Config** недоступна, отредактируйте `~/Library/Application Support/Claude/claude_desktop_config.json` на macOS или `%APPDATA%\Claude\claude_desktop_config.json` на Windows.
+В таких сборках сохраните его в `~/Library/Application Support/Claude/claude_desktop_config.json` на macOS или `%APPDATA%\Claude\claude_desktop_config.json` на Windows.
 
 [Документация Claude Desktop MCP](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop)
 
