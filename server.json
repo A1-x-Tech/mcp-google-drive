@@ -1,0 +1,67 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.A1-x-Tech/mcp-google-drive",
+  "title": "Google Drive MCP",
+  "description": "MCP server for the Google Drive API: search, organize, upload, download, export, share and comment on Drive files.",
+  "websiteUrl": "https://github.com/A1-x-Tech/mcp-google-drive#readme",
+  "repository": {
+    "url": "https://github.com/A1-x-Tech/mcp-google-drive",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "@a1-x-tech/mcp-google-drive",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "GOOGLE_DRIVE_CLIENT_ID",
+          "description": "Google OAuth2 client id (refresh-token flow).",
+          "isRequired": false,
+          "isSecret": false
+        },
+        {
+          "name": "GOOGLE_DRIVE_CLIENT_SECRET",
+          "description": "Google OAuth2 client secret (refresh-token flow). Treat it as a secret.",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "GOOGLE_DRIVE_REFRESH_TOKEN",
+          "description": "Google OAuth2 refresh token, exchanged for access tokens automatically. Treat it as a secret.",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "GOOGLE_DRIVE_ACCESS_TOKEN",
+          "description": "Static OAuth2 access token (~1h lifetime) — alternative to the refresh-token trio, mostly for testing.",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "GOOGLE_DRIVE_API_BASE",
+          "description": "API root override.",
+          "isRequired": false,
+          "default": "https://www.googleapis.com"
+        },
+        {
+          "name": "GOOGLE_DRIVE_TIMEOUT_MS",
+          "description": "Per-request timeout in milliseconds.",
+          "isRequired": false,
+          "default": "60000"
+        },
+        {
+          "name": "GOOGLE_DRIVE_MAX_RETRIES",
+          "description": "Retries on transient errors (429 always; 5xx/network for reads).",
+          "isRequired": false,
+          "default": "3"
+        }
+      ]
+    }
+  ]
+}

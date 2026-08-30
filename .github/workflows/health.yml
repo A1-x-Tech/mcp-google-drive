@@ -1,0 +1,43 @@
+name: Health check
+
+# End-to-end read-only check against the live Google Drive API. Auth is the OAuth2
+# refresh flow (client id/secret + refresh token stored as repo secrets — no per-run
+# minting by hand). smoke makes NO writes here: it calls about() and, when
+# GOOGLE_DRIVE_SMOKE_FILE_ID is set, fetches that file's metadata (the opt-in
+# GOOGLE_DRIVE_SMOKE_WRITE=1 scenario is deliberately NOT enabled in CI). Runs daily +
+# manual dispatch only (never on push/PR), so secrets aren't exposed to PRs/forks; the
+# smoke step skips itself when the secrets are not configured.
+on:
+  schedule:
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    if: github.repository == 'A1-x-Tech/mcp-google-drive'
+    env:
+      GOOGLE_DRIVE_CLIENT_ID: ${{ secrets.GOOGLE_DRIVE_CLIENT_ID }}
+      GOOGLE_DRIVE_CLIENT_SECRET: ${{ secrets.GOOGLE_DRIVE_CLIENT_SECRET }}
+      GOOGLE_DRIVE_REFRESH_TOKEN: ${{ secrets.GOOGLE_DRIVE_REFRESH_TOKEN }}
+      GOOGLE_DRIVE_SMOKE_FILE_ID: ${{ secrets.GOOGLE_DRIVE_SMOKE_FILE_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+      - run: npm ci
+      - name: Read-only smoke check
+        if: env.GOOGLE_DRIVE_CLIENT_ID != ''
+        run: npm run smoke
+      - name: Skipped (no secrets configured)
+        if: env.GOOGLE_DRIVE_CLIENT_ID == ''
+        run: echo "GOOGLE_DRIVE_* secrets are not set — live smoke skipped."
