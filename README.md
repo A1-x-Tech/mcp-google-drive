@@ -3,8 +3,8 @@
 **English** | [Русский](./README.ru.md)
 
 [![npm](https://img.shields.io/npm/v/%40a1-x-tech%2Fmcp-google-drive)](https://www.npmjs.com/package/@a1-x-tech/mcp-google-drive)
-[![CI](https://github.com/A1-x-Tech/mcp-google-drive/actions/workflows/ci.yml/badge.svg)](https://github.com/A1-x-Tech/mcp-google-drive/actions/workflows/ci.yml)
 [![Glama](https://glama.ai/mcp/servers/A1-x-Tech/mcp-google-drive/badges/score.svg)](https://glama.ai/mcp/servers/A1-x-Tech/mcp-google-drive)
+[![CI](https://github.com/A1-x-Tech/mcp-google-drive/actions/workflows/ci.yml/badge.svg)](https://github.com/A1-x-Tech/mcp-google-drive/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
 **A1 Google Drive MCP** lets an AI app work with your Google Drive in plain language. Find a file, tidy up folders, upload and download content, export a Doc as Markdown, share it with the right people — and keep the trash between you and permanent deletion.
