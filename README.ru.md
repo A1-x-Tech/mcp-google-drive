@@ -11,7 +11,8 @@
 
 Сервер работает с Google Drive API через ваш Google-аккаунт. Он одинаково видит «Мой диск» и общие диски, понимает «удалить» как обратимую корзину и явно показывает ограничения Drive API, а не создаёт впечатление, что с файлами можно сделать всё.
 
-- **15 инструментов.** Поиск и метаданные, папки и перемещение, загрузка и скачивание, экспорт Docs/Sheets/Slides, корзина, доступы и комментарии.
+- **21 инструментов.** Поиск и метаданные, папки и перемещение, загрузка и скачивание, экспорт Docs/Sheets/Slides, корзина, доступы и комментарии.
+- **Подключение из диалога.** Скажите «подключи Google Диск»: сервер проведёт через создание OAuth-клиента, поймает редирект Google на `127.0.0.1` с PKCE и сам сохранит токены — без конфигов и перезапуска.
 - **Сначала корзина.** «Удалить» означает обратимую корзину; безвозвратное удаление — сознательно отдельный инструмент, который нельзя выбрать случайно.
 - **Документы остаются целыми.** Docs, Sheets и Slides перемещаются, копируются, экспортируются и конвертируются как целые файлы — сервер никогда не редактирует текст внутри них.
 - **Scope выбираете вы.** Для чтения достаточно `drive.readonly`, `drive.file` ограничивает доступ файлами приложения; полный набор инструментов требует `drive`.
@@ -52,10 +53,10 @@
 
 ## Быстрый старт
 
-Нужны Node.js 20+, Google-аккаунт и OAuth-данные из проекта Google Cloud с включённым Google Drive API.
+Нужны Node.js 20+ и Google-аккаунт. Учётные данные при установке не нужны: сервер подключается прямо в диалоге.
 
-1. [Подготовьте Google OAuth-доступ](#как-получить-доступ).
-2. Добавьте сервер в AI-приложение.
+1. Добавьте сервер в AI-приложение.
+2. Скажите «подключи Google Диск» — ассистент проведёт [создание OAuth-клиента и выдачу доступа](#как-получить-доступ), не трогая конфиги.
 3. Отправьте запрос, который только читает данные.
 
 <details open>
@@ -71,9 +72,6 @@
 
 ```bash
 codex mcp add google-drive \
-  --env GOOGLE_DRIVE_CLIENT_ID=your_client_id \
-  --env GOOGLE_DRIVE_CLIENT_SECRET=your_client_secret \
-  --env GOOGLE_DRIVE_REFRESH_TOKEN=your_refresh_token \
   -- npx -y @a1-x-tech/mcp-google-drive@latest
 ```
 
@@ -92,9 +90,6 @@ codex mcp list
 
 ```bash
 claude mcp add \
-  --env GOOGLE_DRIVE_CLIENT_ID=your_client_id \
-  --env GOOGLE_DRIVE_CLIENT_SECRET=your_client_secret \
-  --env GOOGLE_DRIVE_REFRESH_TOKEN=your_refresh_token \
   --transport stdio --scope user google-drive \
   -- npx -y @a1-x-tech/mcp-google-drive@latest
 ```
@@ -121,12 +116,7 @@ claude mcp list
   "mcpServers": {
     "google-drive": {
       "command": "npx",
-      "args": ["-y", "@a1-x-tech/mcp-google-drive@latest"],
-      "env": {
-        "GOOGLE_DRIVE_CLIENT_ID": "your_client_id",
-        "GOOGLE_DRIVE_CLIENT_SECRET": "your_client_secret",
-        "GOOGLE_DRIVE_REFRESH_TOKEN": "your_refresh_token"
-      }
+      "args": ["-y", "@a1-x-tech/mcp-google-drive@latest"]
     }
   }
 }
@@ -151,12 +141,7 @@ claude mcp list
     "google-drive": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@a1-x-tech/mcp-google-drive@latest"],
-      "env": {
-        "GOOGLE_DRIVE_CLIENT_ID": "your_client_id",
-        "GOOGLE_DRIVE_CLIENT_SECRET": "your_client_secret",
-        "GOOGLE_DRIVE_REFRESH_TOKEN": "your_refresh_token"
-      }
+      "args": ["-y", "@a1-x-tech/mcp-google-drive@latest"]
     }
   }
 }
@@ -179,19 +164,9 @@ claude mcp list
     "google-drive": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@a1-x-tech/mcp-google-drive@latest"],
-      "env": {
-        "GOOGLE_DRIVE_CLIENT_ID": "${input:drive_client_id}",
-        "GOOGLE_DRIVE_CLIENT_SECRET": "${input:drive_client_secret}",
-        "GOOGLE_DRIVE_REFRESH_TOKEN": "${input:drive_refresh_token}"
-      }
+      "args": ["-y", "@a1-x-tech/mcp-google-drive@latest"]
     }
-  },
-  "inputs": [
-    { "type": "promptString", "id": "drive_client_id", "description": "Google OAuth client ID" },
-    { "type": "promptString", "id": "drive_client_secret", "description": "Google OAuth client secret", "password": true },
-    { "type": "promptString", "id": "drive_refresh_token", "description": "Google OAuth refresh token", "password": true }
-  ]
+  }
 }
 ```
 
@@ -253,7 +228,20 @@ claude mcp list
 
 ## Как получить доступ
 
-Google Drive требует OAuth 2.0: одного API-ключа недостаточно.
+Google Drive требует OAuth 2.0: одного API-ключа недостаточно. Путей два, и первый не требует править конфигурационные файлы.
+
+### Подключение из диалога (рекомендуемый путь)
+
+Скажите «подключи Google Диск», и ассистент пройдёт флоу вместе с вами:
+
+1. `setup_instructions` выдаёт чек-лист: создать или выбрать проект Google Cloud, включить **Google Drive API**, настроить consent screen и создать OAuth-клиент типа **Desktop app**.
+2. Скачайте JSON этого клиента («Download JSON») и передайте ассистенту **путь** к файлу — `set_client` сохранит его с правами только для владельца. Секрет через переписку не проходит.
+3. `start_login` возвращает ссылку на согласие Google. Откройте её **на этой же машине** и подтвердите доступ: код возвращается на одноразовый слушатель `127.0.0.1` (PKCE), а не в чат.
+4. `finish_login` меняет код на токены и кладёт их в `~/.config/mcp-google-drive/credentials.json` (права 0600) и проверяет их реальным вызовом Google Drive API — так невключённый API ловится сразу.
+
+Токены перечитываются на каждый вызов, поэтому подключение действует немедленно — перезапускать AI-приложение не нужно. `auth_status` показывает состояние, `logout` отзывает токен и удаляет его.
+
+### Переменные окружения (CI и автоматические установки)
 
 1. Создайте или выберите проект Google Cloud и включите **Google Drive API**.
 2. Настройте OAuth consent screen и создайте OAuth-клиент типа **Desktop app**.
@@ -272,12 +260,15 @@ Refresh token OAuth-приложения в режиме Testing может ис
 
 ## Конфигурация
 
+Все переменные необязательные — без единой из них сервер подключается [из диалога](#подключение-из-диалога-рекомендуемый-путь).
+
 | Переменная | Обязательна | Описание |
 |---|---|---|
-| `GOOGLE_DRIVE_CLIENT_ID` | Да* | OAuth client ID. |
-| `GOOGLE_DRIVE_CLIENT_SECRET` | Да* | OAuth client secret. |
-| `GOOGLE_DRIVE_REFRESH_TOKEN` | Да* | OAuth refresh token. |
-| `GOOGLE_DRIVE_ACCESS_TOKEN` | Да* | Короткоживущая (~1 час) альтернатива OAuth-тройке. |
+| `GOOGLE_DRIVE_CLIENT_ID` | Нет* | OAuth client ID. |
+| `GOOGLE_DRIVE_CLIENT_SECRET` | Нет* | OAuth client secret. |
+| `GOOGLE_DRIVE_REFRESH_TOKEN` | Нет* | OAuth refresh token. |
+| `GOOGLE_DRIVE_ACCESS_TOKEN` | Нет* | Короткоживущая (~1 час) альтернатива OAuth-тройке. |
+| `GOOGLE_DRIVE_OAUTH_PORT` | Нет | Фиксированный порт loopback-слушателя для входа из диалога; нужен при пробросе портов по SSH. |
 | `GOOGLE_DRIVE_API_BASE` | Нет | Переопределяет базовый URL Google APIs. |
 | `GOOGLE_DRIVE_TIMEOUT_MS` | Нет | Тайм-аут одного запроса; по умолчанию `60000` мс. |
 | `GOOGLE_DRIVE_MAX_RETRIES` | Нет | Повторы временных ошибок; по умолчанию `3`. |
