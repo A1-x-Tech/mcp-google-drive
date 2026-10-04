@@ -1,0 +1,24 @@
+{
+  "name": "mcp-google-drive",
+  "displayName": "A1 Google Drive MCP",
+  "description": "MCP server for the Google Drive API — search, organize, upload, download, export, share and comment on Drive files. For Claude, Cursor, Codex and other AI clients.",
+  "author": {
+    "name": "Aleksandr Kovalko & Zinnur Temerbekov"
+  },
+  "homepage": "https://github.com/A1-x-Tech/mcp-google-drive#readme",
+  "repository": "https://github.com/A1-x-Tech/mcp-google-drive",
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "google",
+    "google-drive",
+    "drive",
+    "files",
+    "storage",
+    "claude",
+    "cursor",
+    "codex"
+  ],
+  "logo": "assets/a1-logo.svg"
+}
