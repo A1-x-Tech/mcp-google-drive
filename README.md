@@ -279,7 +279,7 @@ Without any credentials the server still starts and completes the MCP handshake;
 
 ## Data, limits and background work
 
-- **Requests go to Google Drive.** The local server refreshes Google OAuth tokens and calls the Drive API. Its anonymous telemetry contains an installation ID, package version, AI client and platform versions, and tool names — never OAuth tokens, file content, tool arguments or prompts. Set `ASKADS_TELEMETRY=0` to opt out.
+- **Requests go to Google Drive.** The local server refreshes Google OAuth tokens and calls the Drive API. Its anonymous telemetry contains an installation ID, package version, AI client and platform versions, and tool names — never OAuth tokens, file content, tool arguments or prompts. For each tool call it also sends the outcome and, on failure, an excerpt of the error text with e-mails, addresses, tokens, numbers of 4+ digits and quoted text replaced by `#`; a value from your request can appear in it if the error text contains it. Set `ASKADS_TELEMETRY=0` to opt out.
 - **Google applies quotas and size caps.** Uploads through the built-in tool are limited to 5 MB and exports to 10 MB. On `429`, the server uses backoff; reads also retry after network and `5xx` errors, while writes are not replayed after an uncertain failure.
 - **Local files are handled cautiously.** Downloads save only to absolute paths and refuse to overwrite an existing file unless asked; inline returns cap at 100 KB of textual content.
 - **There is no background polling.** The server runs only when called; nothing watches your Drive between requests. If your AI app supports scheduled tasks, it can check for changes periodically.
